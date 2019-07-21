@@ -44,19 +44,19 @@ resource "hcloud_ssh_key" "tstoychev" {
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCgj17jXLNnThacFnWhNBKcJF5aYh+ihg2BQK5VfvYT0j14tTKP/OYkgb7VWDk68Z/O6OE9C/FzImfzrJA0KO7LJa66X/Dm7puDaO9XYrURxZ7UgyxGftBrK7C9WzOlJPnTVAa9NqCfmsgU7niU28dRMRCFPMxaED4VKx3Bm7rCisoQFiM4EaQRAKU4y2D0X+yELq+jQQbnFlRuVFFZ5aQXo6vKyzNPFlDXDGi6Z3Ba84XrXc2vvkgJO569+KUSNekj0gHUnvXaOSwWKnAlz86b9yeaXuCpWtBn/0E9hG/eH8hdwYHjuLT10MXtEMxLUtFiTS4NWBHI01yp6fodvHPKw7t9zq0sB3Egvbmlva0lJwgPYdM5PXHvk/gJJJd1SUxbSF/qhgPG2LoKc3rDqmAy4/M5E9pX7zURb5U+6Vlw6P+uVr6k6v7hf1YfcLcQvNh5UkDSR5pRtQPVP9/r2VDPF9g8ssL98VkAfTmFZrFXH/qLBPL6ud12mIkbtF9VRrLcRy+jMpDto1fiskPv05Aeq0qJRf3tgirs0fbxQ+DarFm+xk6wdaTl4EXLF7g+P57+CnGNgopF5BJ/h1iqHW9AjLH+EbtAN5wlSH4sanl1JyRh733sCvg3jWD3QDpw4utrCbgOj3R62WEJxTXu3MDQSwxP45VxqUK7SyhzN0fd9w== ceckoslab@gmail.com"
 }
 
-module "basic-rum-app-test-1" {
-  source = "./modules/basic-rum-app"
-  ip = "${cidrhost(hcloud_network_subnet.basic-rum-instances.ip_range, 1)}"
-  network_id = hcloud_network.privNet.id
-  subdomain = "test-1"
-  ssh_keys = [
-    hcloud_ssh_key.tstoychev.id,
-    hcloud_ssh_key.eliskovets.id
-  ]
-
-  provision_ssh_key = var.provision_ssh_key
-}
-
-output "host_ip" {
-  value = module.basic-rum-app-test-1.public_ip
-}
+//module "basic-rum-app-test-1" {
+//  source = "./modules/basic-rum-app"
+//  ip = "${cidrhost(hcloud_network_subnet.basic-rum-instances.ip_range, 1)}"
+//  network_id = hcloud_network.privNet.id
+//  subdomain = "test-1"
+//  ssh_keys = [
+//    hcloud_ssh_key.tstoychev.id,
+//    hcloud_ssh_key.eliskovets.id
+//  ]
+//
+//  provision_ssh_key = var.provision_ssh_key
+//}
+//
+//output "host_ip" {
+//  value = module.basic-rum-app-test-1.public_ip
+//}
