@@ -10,7 +10,7 @@ module "instance" {
 
 module "host" {
   source = "../cloudfront-subdomain"
-  domain = "basicrum.com"
+  domain = var.domain
   ip_address = module.instance.host.ipv4_address
   subdomain = var.subdomain
 }

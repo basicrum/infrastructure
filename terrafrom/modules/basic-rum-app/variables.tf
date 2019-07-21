@@ -5,3 +5,5 @@ variable "ssh_keys" {
 }
 variable "subdomain" {}
 variable "provision_ssh_key" {}
+
+variable "domain" {}
