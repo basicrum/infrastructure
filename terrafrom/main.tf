@@ -55,6 +55,7 @@ module "basic-rum-app-test-1" {
   ]
 
   provision_ssh_key = var.provision_ssh_key
+  domain = var.domain
 }
 
 output "host_ip" {
