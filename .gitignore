@@ -1,1 +1,14 @@
+.DS_Store
+
+# Idea
 .idea
+
+# Local .terraform directories
+**/.terraform/*
+terrafrom/secret.tfvars
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+
