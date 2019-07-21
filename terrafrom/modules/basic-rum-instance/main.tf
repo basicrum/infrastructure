@@ -1,7 +1,7 @@
 resource "hcloud_server" "basic-rum-host" {
   image = "ubuntu-18.04"
-  name = "${var.name}"
-  server_type = "${var.server_type}"
+  name = var.name
+  server_type = var.server_type
   location = "nbg1"
   ssh_keys = var.ssh_keys
 
@@ -16,11 +16,11 @@ EOF
 }
 resource "null_resource" "start-nginx-container" {
   connection {
-    host = "${hcloud_server.basic-rum-host.ipv4_address}"
+    host = hcloud_server.basic-rum-host.ipv4_address
     type        = "ssh"
-    user        = "${var.provision_user}"
-    private_key = "${file("${var.provision_ssh_key}")}"
-    timeout     = "${var.connection_timeout}"
+    user        = var.provision_user
+    private_key = file(var.provision_ssh_key)
+    timeout     = var.connection_timeout
   }
 
   provisioner "remote-exec" {
@@ -34,7 +34,7 @@ resource "null_resource" "start-nginx-container" {
 }
 
 resource "hcloud_server_network" "basic-rum-attach" {
-  server_id = "${hcloud_server.basic-rum-host.id}"
-  network_id = "${var.network_id}"
+  server_id = hcloud_server.basic-rum-host.id
+  network_id = var.network_id
   ip = var.ip
 }

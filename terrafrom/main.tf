@@ -1,17 +1,18 @@
 # Configure the Hetzner Cloud Provider
 provider "hcloud" {
-  token = "${var.hcloud_token}"
+  token = var.hcloud_token
 }
 
 provider "cloudflare" {
-  email = "${var.cloudflare_email}"
-  token = "${var.cloudflare_token}"
+  email = var.cloudflare_email
+  token = var.cloudflare_token
 }
 
 
 locals {
   registry_ip = "10.0.1.5"
   instance_count = 1
+  instance_type = "cx11"
 }
 
 resource "hcloud_network" "privNet" {
@@ -20,14 +21,14 @@ resource "hcloud_network" "privNet" {
 }
 
 resource "hcloud_network_subnet" "shared-services" {
-  network_id = "${hcloud_network.privNet.id}"
+  network_id = hcloud_network.privNet.id
   type = "server"
   network_zone = "eu-central"
   ip_range = "10.0.1.0/24"
 }
 
 resource "hcloud_network_subnet" "basic-rum-instances" {
-  network_id = "${hcloud_network.privNet.id}"
+  network_id = hcloud_network.privNet.id
   type = "server"
   network_zone = "eu-central"
   ip_range = "10.0.2.0/24"
@@ -56,6 +57,7 @@ module "basic-rum-app-test-1" {
 
   provision_ssh_key = var.provision_ssh_key
   domain = var.domain
+  instance_type = local.instance_type
 }
 
 output "host_ip" {

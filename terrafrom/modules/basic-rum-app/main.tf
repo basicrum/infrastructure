@@ -1,6 +1,6 @@
 module "instance" {
   source = "../basic-rum-instance"
-  instance_type = "cx11"
+  instance_type = var.instance_type
   ip = var.ip
   network_id = var.network_id
   name = var.subdomain

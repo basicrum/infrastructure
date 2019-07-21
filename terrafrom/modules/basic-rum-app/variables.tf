@@ -7,3 +7,4 @@ variable "subdomain" {}
 variable "provision_ssh_key" {}
 
 variable "domain" {}
+variable "instance_type" {}
