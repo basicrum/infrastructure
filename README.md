@@ -7,7 +7,7 @@ Current draft of SaaS infrastructure:
 
 
 # How to run infrastructure with terraform:
-- Configure terraform/secret.tf:
+- Configure terraform/secret.tfvars:
 ```hcl-terraform
   # Hetzner
   hcloud_token = "your_hetzner_cloud_token"
@@ -24,6 +24,6 @@ Current draft of SaaS infrastructure:
 ```bash
 cd terraform
 terraform init
-terraform apply -var-file=secret.tf
+terraform apply -var-file=secret.tfvars
 
 ```
