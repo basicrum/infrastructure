@@ -1,0 +1,76 @@
+version: "3.7"
+
+#ideas taken from https://knplabs.com/en/blog/how-to-dockerise-a-symfony-4-project
+
+services:
+  basic_rum_code:
+    image: basicrum/code:0.0.1
+    volumes:
+      - data:/usr/src/app
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+
+  php-fpm:
+    image: basicrum/app:0.0.1
+    build:
+      context: php-fpm
+      dockerfile: Dockerfile
+    container_name: basicrum_bo_php_composer_test
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+    environment:
+      APP_ENV: prod
+      DATABASE_URL: mysql://roottest:roottest@db:3306/basicrum_demo
+      APP_SECRET: a61405770c0c9097569cd6c494a60a7b
+    volumes:
+      - data:/usr/src/app
+    depends_on:
+      - db
+    links:
+      - db
+    networks:
+      - bo
+
+  db:
+    image: mysql:8.0.15
+    container_name: basicrum_bo_mysql_composer_test
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: rootsecret
+      MYSQL_DATABASE: basicrum_demo
+      MYSQL_USER: roottest
+      MYSQL_PASSWORD: roottest
+    volumes:
+      - mysql:/var/lib/mysql
+    networks:
+      - bo
+
+  nginx:
+    image: basicrum/nginx:0.0.1
+    build:
+      context: nginx
+      dockerfile: Dockerfile
+    container_name: basicrum_bo_nginx_composer_test
+    volumes:
+      - data:/usr/src/app
+    ports:
+      - 80:80
+    depends_on:
+      - php-fpm
+    networks:
+      - bo
+
+networks:
+  bo:
+    driver: overlay
+    attachable: true
+
+volumes:
+  data: {}
+  mysql: {}
+

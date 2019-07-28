@@ -14,7 +14,26 @@ EOF
 
 
 }
-resource "null_resource" "start-nginx-container" {
+resource "null_resource" "init-docker-swarm" {
+  connection {
+    host = hcloud_server.basic-rum-host.ipv4_address
+    type = "ssh"
+    user = var.provision_user
+    private_key = file(var.provision_ssh_key)
+    timeout = var.connection_timeout
+  }
+
+  provisioner "remote-exec" { # Initialise 1 node docker swarm
+    script = "${path.module}/scripts/init_docker_swarm.sh"
+  }
+}
+
+resource "null_resource" "start-basic-rum-stack" {
+  depends_on = [null_resource.init-docker-swarm]
+  triggers = {
+    docker_compose_md5 = md5(file("${path.module}/docker-compose.yml"))
+  }
+
   connection {
     host = hcloud_server.basic-rum-host.ipv4_address
     type        = "ssh"
@@ -25,10 +44,19 @@ resource "null_resource" "start-nginx-container" {
 
   provisioner "remote-exec" {
     inline = [
-      "while [ -z \"$(docker info | grep CPUs)\" ]; do echo 'Waiting for Docker to start...' && sleep 2;done",
-      "docker pull basicrum/nginx:test",
-      "docker rm -f $(docker ps -q)",
-      "docker run -d -p 80:80 --restart=always basicrum/nginx:test"
+      "mkdir -p ~/.docker/services"
+    ]
+  }
+
+  provisioner "file" {
+    source = "${path.module}/docker-compose.yml"
+    destination = "~/.docker/services/basic-rum.yml"
+  }
+
+  # start stack
+  provisioner "remote-exec" {
+    inline = [
+      "docker stack deploy -c ~/.docker/services/basic-rum.yml --prune basic-rum"
     ]
   }
 }
