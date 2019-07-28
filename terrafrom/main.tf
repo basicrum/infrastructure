@@ -13,6 +13,7 @@ locals {
   registry_ip = "10.0.1.5"
   instance_count = 1
   instance_type = "cx11"
+  rundeck_instance_type = "cx21"
 }
 
 resource "hcloud_network" "privNet" {
@@ -47,7 +48,7 @@ resource "hcloud_ssh_key" "tstoychev" {
 
 module "basic-rum-app-test-1" {
   source = "./modules/basic-rum-app"
-  ip = "${cidrhost(hcloud_network_subnet.basic-rum-instances.ip_range, 1)}"
+  local_ip = "${cidrhost(hcloud_network_subnet.basic-rum-instances.ip_range, 1)}"
   network_id = hcloud_network.privNet.id
   subdomain = "test-1"
   ssh_keys = [
@@ -60,6 +61,18 @@ module "basic-rum-app-test-1" {
   instance_type = local.instance_type
 }
 
-output "host_ip" {
-  value = module.basic-rum-app-test-1.public_ip
+module "rundeck" {
+  source = "./modules/rundeck"
+  local_ip = "${cidrhost(hcloud_network_subnet.basic-rum-instances.ip_range, 254)}"
+  network_id = hcloud_network.privNet.id
+  ssh_keys = [
+    hcloud_ssh_key.tstoychev.id,
+    hcloud_ssh_key.eliskovets.id
+  ]
+
+  provision_ssh_key = var.provision_ssh_key
+  instance_type = local.rundeck_instance_type
+  domain = var.domain
+  admin_password = var.rundeck_admin_pass
+  user_password = var.rundeck_user_pass
 }

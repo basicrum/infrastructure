@@ -18,7 +18,11 @@ Current draft of SaaS infrastructure:
   cloudflare_token = "your cloudflare token"
   
   # Domain
-  domain = "yourcfdomain.com" 
+  domain = "yourcfdomain.com"
+  
+  # Rundeck 
+  rundeck_admin_pass = "rundeck_admin_pass"
+  rundeck_user_pass = "rundeck_use_pass" 
 ```
 - Apply terraform config:
 ```bash

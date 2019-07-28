@@ -1,4 +1,4 @@
-variable "ip" {}
+variable "local_ip" {}
 variable "network_id" {}
 variable "ssh_keys" {
   type = "list"

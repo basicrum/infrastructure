@@ -1,7 +1,7 @@
 module "instance" {
   source = "../basic-rum-instance"
   instance_type = var.instance_type
-  ip = var.ip
+  ip = var.local_ip
   network_id = var.network_id
   name = var.subdomain
   ssh_keys = var.ssh_keys

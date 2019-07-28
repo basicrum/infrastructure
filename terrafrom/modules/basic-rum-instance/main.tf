@@ -1,7 +1,7 @@
 resource "hcloud_server" "basic-rum-host" {
   image = "ubuntu-18.04"
   name = var.name
-  server_type = var.server_type
+  server_type = var.instance_type
   location = "nbg1"
   ssh_keys = var.ssh_keys
 
@@ -14,6 +14,7 @@ EOF
 
 
 }
+
 resource "null_resource" "init-docker-swarm" {
   connection {
     host = hcloud_server.basic-rum-host.ipv4_address
@@ -24,7 +25,7 @@ resource "null_resource" "init-docker-swarm" {
   }
 
   provisioner "remote-exec" { # Initialise 1 node docker swarm
-    script = "${path.module}/scripts/init_docker_swarm.sh"
+    script = "${path.root}/scripts/init_docker_swarm.sh"
   }
 }
 
