@@ -32,6 +32,7 @@ resource "null_resource" "start-basic-rum-stack" {
   depends_on = [null_resource.init-docker-swarm]
   triggers = {
     docker_compose_md5 = md5(file("${path.module}/docker-compose.yml"))
+    deploy_script_md5 = md5(file("${path.module}/scripts/deploy.sh"))
   }
 
   connection {
@@ -55,9 +56,7 @@ resource "null_resource" "start-basic-rum-stack" {
 
   # start stack
   provisioner "remote-exec" {
-    inline = [
-      "docker stack deploy -c ~/.docker/services/basic-rum.yml --prune basic-rum"
-    ]
+    script = "${path.module}/scripts/deploy.sh"
   }
 }
 
