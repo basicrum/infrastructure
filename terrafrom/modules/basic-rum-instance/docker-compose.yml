@@ -3,11 +3,8 @@ version: "3.7"
 #ideas taken from https://knplabs.com/en/blog/how-to-dockerise-a-symfony-4-project
 
 services:
-  php-fpm:
-    image: basicrum/app:0.0.1
-    build:
-      context: php-fpm
-      dockerfile: Dockerfile
+  backoffice_php_fpm:
+    image: basicrum/backoffice_php_fpm:0.0.1
     container_name: basicrum_bo_php_composer_test
     deploy:
       replicas: 1
@@ -40,15 +37,12 @@ services:
       - bo
 
   nginx:
-    image: basicrum/nginx:0.0.1
-    build:
-      context: nginx
-      dockerfile: Dockerfile
+    image: basicrum/backoffice_nginx:0.0.1
     container_name: basicrum_bo_nginx_composer_test
     ports:
       - 80:80
     depends_on:
-      - php-fpm
+      - backoffice_php_fpm
     networks:
       - bo
 
