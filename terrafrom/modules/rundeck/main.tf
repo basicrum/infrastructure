@@ -2,15 +2,10 @@ resource "hcloud_server" "rundeck-host" {
   image = "ubuntu-18.04"
   name = "rundeck"
   server_type = var.instance_type
-  location = "nbg1"
+  location = var.location
   ssh_keys = var.ssh_keys
 
-  user_data = <<EOF
-#!/usr/bin/env bash
-while fuser /var/lib/apt/lists/lock >/dev/null 2>&1; do sleep 1; done;
-apt-get update;
-apt-get install -yq ufw ${join(" ", var.apt_packages)}
-EOF
+  user_data = file("${path.root}/scripts/cloud-init.cfg")
 
 }
 

@@ -10,6 +10,7 @@ provider "cloudflare" {
 
 
 locals {
+  data_center = "nbg1"
   instance_type = "cx11"
   rundeck_instance_type = "cx21"
   catcher_instance_type = "cx21"
@@ -57,6 +58,7 @@ module "basic-rum-catcher" {
   provision_ssh_key = var.provision_ssh_key
   instance_type = local.catcher_instance_type
   domain = var.domain
+  location = local.data_center
 }
 
 module "basic-rum-app-test-1" {
@@ -72,6 +74,7 @@ module "basic-rum-app-test-1" {
   provision_ssh_key = var.provision_ssh_key
   domain = var.domain
   instance_type = local.instance_type
+  location = local.data_center
 }
 
 module "rundeck" {
@@ -88,4 +91,5 @@ module "rundeck" {
   domain = var.domain
   admin_password = var.rundeck_admin_pass
   user_password = var.rundeck_user_pass
+  location = local.data_center
 }

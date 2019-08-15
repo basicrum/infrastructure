@@ -16,6 +16,7 @@ services:
       RUNDECK_DATABASE_PASSWORD: rundeck
       RUNDECK_DATABASE_URL: jdbc:mysql://mysql/rundeck?autoReconnect=true&useSSL=false
       NO_LOCAL_MYSQL: "true"
+      RUNDECK_GRAILS_URL: "https://rundeck.${DOMAIN}"
     volumes:
       - $${RUNDECK_LICENSE_FILE:-/dev/null}:/home/rundeck/etc/rundeckpro-license.key
     configs:

@@ -1,13 +1,10 @@
 variable "instance_type" {}
 variable "ip" {}
+variable "location" {}
 variable "network_id" {}
 variable "name" {}
 variable "ssh_keys" {
   type = "list"
-}
-variable "apt_packages" {
-  type = "list"
-  default = ["docker.io"]
 }
 variable "provision_user" {
   default = "root"

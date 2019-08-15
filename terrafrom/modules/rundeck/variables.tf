@@ -5,12 +5,7 @@ variable "ssh_keys" {
 }
 variable "provision_ssh_key" {}
 variable "instance_type" {}
-
-variable "apt_packages" {
-  type = "list"
-  default = ["docker.io"]
-}
-
+variable "location" {}
 
 variable "provision_user" {
   default = "root"
