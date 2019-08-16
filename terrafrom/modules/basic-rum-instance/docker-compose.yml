@@ -15,6 +15,8 @@ services:
       APP_ENV: prod
       DATABASE_URL: mysql://roottest:roottest@db:3306/basicrum_demo
       APP_SECRET: a61405770c0c9097569cd6c494a60a7b
+      CATCHER_ENDPOINT: http://test11:test22@10.0.2.1/excavator/digger.php
+      MONITORED_ORIGIN: www.darvart.de
     depends_on:
       - db
     links:

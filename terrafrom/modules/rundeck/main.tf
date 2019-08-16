@@ -4,7 +4,6 @@ resource "hcloud_server" "rundeck-host" {
   server_type = var.instance_type
   location = var.location
   ssh_keys = var.ssh_keys
-
   user_data = file("${path.root}/scripts/cloud-init.cfg")
 
 }
@@ -74,6 +73,12 @@ resource "null_resource" "start-rundeck" {
       "docker stack deploy -c ~/.docker/services/rundeck/docker-compose.yml rundeck"
     ]
   }
+}
+
+resource "hcloud_server_network" "basic-rum-attach" {
+  server_id = hcloud_server.rundeck-host.id
+  network_id = var.network_id
+  ip = var.local_ip
 }
 
 resource "cloudflare_record" "basic-rum-host" {

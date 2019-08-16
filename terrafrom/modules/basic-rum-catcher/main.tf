@@ -4,7 +4,6 @@ resource "hcloud_server" "catcher-host" {
   server_type = var.instance_type
   location = var.location
   ssh_keys = var.ssh_keys
-
   user_data = file("${path.root}/scripts/cloud-init.cfg")
 }
 
@@ -59,6 +58,12 @@ resource "null_resource" "start-catcher" {
       "docker stack deploy -c ~/.docker/services/catcher/docker-compose.yml catcher"
     ]
   }
+}
+
+resource "hcloud_server_network" "basic-rum-attach" {
+  server_id = hcloud_server.catcher-host.id
+  network_id = var.network_id
+  ip = var.local_ip
 }
 
 resource "cloudflare_record" "basic-rum-host" {
