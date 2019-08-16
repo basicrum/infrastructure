@@ -22,6 +22,24 @@ services:
     networks:
       - bo
 
+  backoffice_init:
+    image: basicrum/backoffice_php_fpm:0.0.1
+    container_name: backoffice_init
+    deploy:
+      restart_policy:
+        condition: none
+    environment:
+      APP_ENV: prod
+      DATABASE_URL: mysql://roottest:roottest@db:3306/basicrum_demo
+      APP_SECRET: a61405770c0c9097569cd6c494a60a7b
+    command: "sh /usr/src/app/init.sh"
+    depends_on:
+      - db
+    links:
+      - db
+    networks:
+      - bo
+
   db:
     image: mysql:8.0.15
     container_name: basicrum_bo_mysql_composer_test
