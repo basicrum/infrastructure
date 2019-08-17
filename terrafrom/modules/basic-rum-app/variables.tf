@@ -1,5 +1,6 @@
 variable "local_ip" {}
 variable "network_id" {}
+variable "location" {}
 variable "ssh_keys" {
   type = "list"
 }

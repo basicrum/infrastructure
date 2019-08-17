@@ -1,16 +1,15 @@
-resource "hcloud_server" "rundeck-host" {
+resource "hcloud_server" "catcher-host" {
   image = "ubuntu-18.04"
-  name = "rundeck"
+  name = "catcher"
   server_type = var.instance_type
   location = var.location
   ssh_keys = var.ssh_keys
   user_data = file("${path.root}/scripts/cloud-init.cfg")
-
 }
 
 resource "null_resource" "init-docker-swarm" {
   connection {
-    host = hcloud_server.rundeck-host.ipv4_address
+    host = hcloud_server.catcher-host.ipv4_address
     type = "ssh"
     user = var.provision_user
     private_key = file(var.provision_ssh_key)
@@ -26,26 +25,17 @@ data "template_file" "docker_compose" {
   template = file("${path.module}/docker/docker-compose.yml")
   vars = {
     DOMAIN = var.domain
-    HOST_IP = hcloud_server.rundeck-host.ipv4_address
+    HOST_IP = hcloud_server.catcher-host.ipv4_address
   }
 }
 
-data "template_file" "realm_properties" {
-  template = file("${path.module}/docker/realm.properties")
-  vars = {
-    ADMIN_PASS = var.admin_password
-    USER_PASS = var.user_password
-  }
-}
-
-resource "null_resource" "start-rundeck" {
+resource "null_resource" "start-catcher" {
   depends_on = [null_resource.init-docker-swarm]
   triggers = {
     docker_compose_md5 = md5(file("${path.module}/docker/docker-compose.yml"))
-    realm_properties_md5 = md5(file("${path.module}/docker/realm.properties"))
   }
   connection {
-    host = hcloud_server.rundeck-host.ipv4_address
+    host = hcloud_server.catcher-host.ipv4_address
     type = "ssh"
     user = var.provision_user
     private_key = file(var.provision_ssh_key)
@@ -54,38 +44,33 @@ resource "null_resource" "start-rundeck" {
 
   provisioner "remote-exec" {
     inline = [
-      "mkdir -p ~/.docker/services/rundeck"
+      "mkdir -p ~/.docker/services/catcher"
     ]
   }
 
   provisioner "file" {
     content = data.template_file.docker_compose.rendered
-    destination = "~/.docker/services/rundeck/docker-compose.yml"
-  }
-
-  provisioner "file" {
-    content = data.template_file.realm_properties.rendered
-    destination = "~/.docker/services/rundeck/realm.properties"
+    destination = "~/.docker/services/catcher/docker-compose.yml"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "docker stack deploy -c ~/.docker/services/rundeck/docker-compose.yml rundeck"
+      "docker stack deploy -c ~/.docker/services/catcher/docker-compose.yml catcher"
     ]
   }
 }
 
 resource "hcloud_server_network" "basic-rum-attach" {
-  server_id = hcloud_server.rundeck-host.id
+  server_id = hcloud_server.catcher-host.id
   network_id = var.network_id
   ip = var.local_ip
 }
 
 resource "cloudflare_record" "basic-rum-host" {
   domain = var.domain
-  name = "rundeck"
+  name = "catcher"
   type = "A"
-  value = hcloud_server.rundeck-host.ipv4_address
+  value = hcloud_server.catcher-host.ipv4_address
   ttl = 1
   proxied = true
 }

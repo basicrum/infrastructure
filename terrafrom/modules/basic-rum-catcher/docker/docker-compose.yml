@@ -1,0 +1,17 @@
+version: "3.7"
+
+services:
+
+  app_beacon_catcher:
+    container_name: beacon_catcher_fpm
+    image: basicrum/beacon_catcher_fpm:0.0.1
+    environment:
+      - BASIC_AUTH_ENABLED=yes
+      - BASIC_AUTH_USERNAME=test11
+      - BASIC_AUTH_PASSWORD=test22
+
+  webserver_beacon_catcher:
+    container_name: beacon_catcher_nginx
+    image: basicrum/beacon_catcher_nginx:0.0.1
+    ports:
+      - 80:80

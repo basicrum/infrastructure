@@ -6,6 +6,7 @@ module "instance" {
   name = var.subdomain
   ssh_keys = var.ssh_keys
   provision_ssh_key = var.provision_ssh_key
+  location = var.location
 }
 
 module "host" {

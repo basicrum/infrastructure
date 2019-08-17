@@ -3,11 +3,8 @@ version: "3.7"
 #ideas taken from https://knplabs.com/en/blog/how-to-dockerise-a-symfony-4-project
 
 services:
-  php-fpm:
-    image: basicrum/app:0.0.1
-    build:
-      context: php-fpm
-      dockerfile: Dockerfile
+  backoffice_php_fpm:
+    image: basicrum/backoffice_php_fpm:0.0.1
     container_name: basicrum_bo_php_composer_test
     deploy:
       replicas: 1
@@ -18,6 +15,26 @@ services:
       APP_ENV: prod
       DATABASE_URL: mysql://roottest:roottest@db:3306/basicrum_demo
       APP_SECRET: a61405770c0c9097569cd6c494a60a7b
+      CATCHER_ENDPOINT: http://test11:test22@10.0.2.1/excavator/digger.php
+      MONITORED_ORIGIN: www.darvart.de
+    depends_on:
+      - db
+    links:
+      - db
+    networks:
+      - bo
+
+  backoffice_init:
+    image: basicrum/backoffice_php_fpm:0.0.1
+    container_name: backoffice_init
+    deploy:
+      restart_policy:
+        condition: none
+    environment:
+      APP_ENV: prod
+      DATABASE_URL: mysql://roottest:roottest@db:3306/basicrum_demo
+      APP_SECRET: a61405770c0c9097569cd6c494a60a7b
+    command: "sh /usr/src/app/init.sh"
     depends_on:
       - db
     links:
@@ -40,15 +57,12 @@ services:
       - bo
 
   nginx:
-    image: basicrum/nginx:0.0.1
-    build:
-      context: nginx
-      dockerfile: Dockerfile
+    image: basicrum/backoffice_nginx:0.0.1
     container_name: basicrum_bo_nginx_composer_test
     ports:
       - 80:80
     depends_on:
-      - php-fpm
+      - backoffice_php_fpm
     networks:
       - bo
 
