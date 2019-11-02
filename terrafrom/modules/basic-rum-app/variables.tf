@@ -9,3 +9,5 @@ variable "provision_ssh_key" {}
 
 variable "domain" {}
 variable "instance_type" {}
+
+variable "letsencrypt_email" {}

@@ -16,3 +16,4 @@ variable "connection_timeout" {
 }
 
 variable "domain" {}
+variable "letsencrypt_email" {}

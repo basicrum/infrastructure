@@ -3,7 +3,6 @@ version: "3.7"
 services:
 
   app_beacon_catcher:
-    container_name: beacon_catcher_fpm
     image: basicrum/beacon_catcher_fpm:0.0.1
     environment:
       - BASIC_AUTH_ENABLED=yes
@@ -11,7 +10,45 @@ services:
       - BASIC_AUTH_PASSWORD=test22
 
   webserver_beacon_catcher:
-    container_name: beacon_catcher_nginx
     image: basicrum/beacon_catcher_nginx:0.0.1
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.bo-http.rule=Host(`${DOMAIN}`)"
+        - "traefik.http.routers.bo-http.entrypoints=web"
+        - "traefik.http.routers.bo-http.middlewares=redirect"
+        - "traefik.http.middlewares.redirect.redirectscheme.scheme=https"
+        - "traefik.http.routers.bo-https.rule=Host(`${DOMAIN}`)"
+        - "traefik.http.services.bo-https.loadbalancer.server.port=80"
+        - "traefik.http.routers.bo-https.entrypoints=websecure"
+        - "traefik.http.routers.bo-https.tls.certresolver=myhttpchallenge"
+
+
+  traefik:
+    image: "traefik:v2.0"
+    command:
+      - "--api.dashboard=false" # @todo: enable it with basic-auth
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.swarmMode=true"
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      - "--providers.docker.exposedByDefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myhttpchallenge.acme.httpchallenge=true"
+      - "--certificatesresolvers.myhttpchallenge.acme.httpchallenge.entrypoint=web"
+      #- "--certificatesresolvers.myhttpchallenge.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myhttpchallenge.acme.email=${LETSENCRYPT_EMAIL}"
+      - "--certificatesresolvers.myhttpchallenge.acme.storage=/letsencrypt/acme.json"
     ports:
-      - 80:80
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - webserver_beacon_catcher
+
+volumes:
+  letsencrypt: {}

@@ -13,3 +13,5 @@ variable "provision_ssh_key" {}
 variable "connection_timeout" {
   default = "2m"
 }
+variable "letsencrypt_email" {}
+variable "domain" {}

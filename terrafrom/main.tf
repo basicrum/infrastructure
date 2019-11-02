@@ -52,13 +52,14 @@ module "basic-rum-catcher" {
   network_id = hcloud_network.privNet.id
   ssh_keys = [
     hcloud_ssh_key.tstoychev.id,
-        hcloud_ssh_key.eliskovets.id
+    hcloud_ssh_key.eliskovets.id
   ]
 
   provision_ssh_key = var.provision_ssh_key
   instance_type = local.catcher_instance_type
   domain = var.domain
   location = local.data_center
+  letsencrypt_email = var.cloudflare_email
 }
 
 module "basic-rum-app-test-1" {
@@ -75,6 +76,7 @@ module "basic-rum-app-test-1" {
   domain = var.domain
   instance_type = local.instance_type
   location = local.data_center
+  letsencrypt_email = var.cloudflare_email
 }
 
 module "rundeck" {

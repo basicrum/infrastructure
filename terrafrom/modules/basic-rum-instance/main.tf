@@ -22,11 +22,18 @@ resource "null_resource" "init-docker-swarm" {
   }
 }
 
+data "template_file" "docker-compose" {
+  template = file("${path.module}/docker/docker-compose.yml")
+  vars = {
+    LETSENCRYPT_EMAIL = var.letsencrypt_email
+    DOMAIN = var.domain
+  }
+}
+
 resource "null_resource" "start-basic-rum-stack" {
   depends_on = [null_resource.init-docker-swarm]
   triggers = {
-    docker_compose_md5 = md5(file("${path.module}/docker-compose.yml"))
-    deploy_script_md5 = md5(file("${path.module}/scripts/deploy.sh"))
+    docker_compose_md5 = md5(data.template_file.docker-compose.rendered)
   }
 
   connection {
@@ -44,13 +51,15 @@ resource "null_resource" "start-basic-rum-stack" {
   }
 
   provisioner "file" {
-    source = "${path.module}/docker-compose.yml"
+    content = data.template_file.docker-compose.rendered
     destination = "~/.docker/services/basic-rum.yml"
   }
 
   # start stack
   provisioner "remote-exec" {
-    script = "${path.module}/scripts/deploy.sh"
+    inline = [
+      "docker stack deploy -c ~/.docker/services/basic-rum.yml basic-rum"
+    ]
   }
 }
 

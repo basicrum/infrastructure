@@ -1,3 +1,7 @@
+locals {
+  domain = "${cloudflare_record.basic-rum-host.name}.${var.domain}"
+}
+
 resource "hcloud_server" "catcher-host" {
   image = "ubuntu-18.04"
   name = "catcher"
@@ -24,15 +28,16 @@ resource "null_resource" "init-docker-swarm" {
 data "template_file" "docker_compose" {
   template = file("${path.module}/docker/docker-compose.yml")
   vars = {
-    DOMAIN = var.domain
+    DOMAIN = local.domain
     HOST_IP = hcloud_server.catcher-host.ipv4_address
+    LETSENCRYPT_EMAIL = var.letsencrypt_email
   }
 }
 
 resource "null_resource" "start-catcher" {
   depends_on = [null_resource.init-docker-swarm]
   triggers = {
-    docker_compose_md5 = md5(file("${path.module}/docker/docker-compose.yml"))
+    docker_compose_md5 = md5(data.template_file.docker_compose.rendered)
   }
   connection {
     host = hcloud_server.catcher-host.ipv4_address
@@ -72,5 +77,5 @@ resource "cloudflare_record" "basic-rum-host" {
   type = "A"
   value = hcloud_server.catcher-host.ipv4_address
   ttl = 1
-  proxied = true
+  proxied = false
 }
