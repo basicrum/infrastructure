@@ -78,20 +78,3 @@ module "basic-rum-app-test-1" {
   location = local.data_center
   letsencrypt_email = var.cloudflare_email
 }
-
-module "rundeck" {
-  source = "./modules/rundeck"
-  local_ip = "${cidrhost(hcloud_network_subnet.basic-rum-instances.ip_range, 254)}"
-  network_id = hcloud_network.privNet.id
-  ssh_keys = [
-    hcloud_ssh_key.tstoychev.id,
-    hcloud_ssh_key.eliskovets.id
-  ]
-
-  provision_ssh_key = var.provision_ssh_key
-  instance_type = local.rundeck_instance_type
-  domain = var.domain
-  admin_password = var.rundeck_admin_pass
-  user_password = var.rundeck_user_pass
-  location = local.data_center
-}
