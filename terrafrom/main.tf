@@ -75,6 +75,7 @@ module "basic-rum-app-test-1" {
   domain = var.domain
   instance_type = local.instance_type
   location = local.data_center
+  letsencrypt_email = var.cloudflare_email
 }
 
 module "rundeck" {

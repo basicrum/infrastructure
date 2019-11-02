@@ -7,6 +7,8 @@ module "instance" {
   ssh_keys = var.ssh_keys
   provision_ssh_key = var.provision_ssh_key
   location = var.location
+  letsencrypt_email = var.letsencrypt_email
+  domain = module.host.domain
 }
 
 module "host" {

@@ -5,7 +5,6 @@ version: "3.7"
 services:
   backoffice_php_fpm:
     image: basicrum/backoffice_php_fpm:0.0.1
-    container_name: basicrum_bo_php_composer_test
     deploy:
       replicas: 1
       update_config:
@@ -26,7 +25,6 @@ services:
 
   backoffice_init:
     image: basicrum/backoffice_php_fpm:0.0.1
-    container_name: backoffice_init
     deploy:
       restart_policy:
         condition: none
@@ -44,7 +42,6 @@ services:
 
   db:
     image: mysql:8.0.15
-    container_name: basicrum_bo_mysql_composer_test
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: rootsecret
@@ -56,11 +53,47 @@ services:
     networks:
       - bo
 
-  nginx:
-    image: basicrum/backoffice_nginx:0.0.1
-    container_name: basicrum_bo_nginx_composer_test
+  traefik:
+    image: "traefik:v2.0"
+    command:
+      - "--api.dashboard=false" # @todo: enable it with basic-auth
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.swarmMode=true"
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      - "--providers.docker.exposedByDefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myhttpchallenge.acme.httpchallenge=true"
+      - "--certificatesresolvers.myhttpchallenge.acme.httpchallenge.entrypoint=web"
+      #- "--certificatesresolvers.myhttpchallenge.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myhttpchallenge.acme.email=${LETSENCRYPT_EMAIL}"
+      - "--certificatesresolvers.myhttpchallenge.acme.storage=/letsencrypt/acme.json"
     ports:
-      - 80:80
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - nginx
+    networks:
+      - bo
+
+  nginx: # we have to use it till https://github.com/containous/traefik/issues/753 is open
+    image: basicrum/backoffice_nginx:0.0.1
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.bo-http.rule=Host(`${DOMAIN}`)"
+        - "traefik.http.routers.bo-http.entrypoints=web"
+        - "traefik.http.routers.bo-http.middlewares=redirect"
+        - "traefik.http.middlewares.redirect.redirectscheme.scheme=https"
+        - "traefik.http.routers.bo-https.rule=Host(`${DOMAIN}`)"
+        - "traefik.http.services.bo-https.loadbalancer.server.port=80"
+        - "traefik.http.routers.bo-https.entrypoints=websecure"
+        - "traefik.http.routers.bo-https.tls.certresolver=myhttpchallenge"
     depends_on:
       - backoffice_php_fpm
     networks:
@@ -73,4 +106,5 @@ networks:
 
 volumes:
   mysql: {}
+  letsencrypt: {}
 
